@@ -1,0 +1,173 @@
+#include <iostream>
+#include <ctime>
+using namespace std;
+
+// 
+int GetRealX(int x, int length)
+{
+    int realX;
+    if (x > length)
+    {
+        realX = x % length;
+    }
+    else
+    {
+        realX = x;
+    }
+    return realX;
+}
+int SearchRowIndex(int** mtrx, int k, int n, int i)
+{
+    int tempCountZeros = 0;
+    int max;
+    int tempCountZerosI = 0;
+    int tempCountZerosIPlusOne = 0;
+    if (i <= 1)
+    {
+
+        for (int j = 0; j < n; j++)
+        {
+            if (mtrx[i][j] == 0)
+            {
+                tempCountZerosI++;
+            }
+            if (mtrx[i - 1][j] == 0)
+            {
+                tempCountZerosIPlusOne++;
+            }
+        }
+        if (tempCountZerosI > tempCountZerosIPlusOne)
+            return i;
+        else
+            return i - 1;
+    }
+    for (int j = 0; j < n; j++)
+    {
+        if (mtrx[i][j] == 0)
+        {
+            tempCountZeros++;
+        }
+    }
+
+    max = SearchRowIndex(mtrx, k, n, i - 1);
+
+    if (tempCountZeros > max)
+        return i;
+    else
+        return max;
+}
+void StepRight(int** arr, int k, int n, int x)
+{
+    if (x != 0)
+    {
+        for (int i = 0; i < k; i++)
+        {
+            for (int j = n - 1; j > 0; j--)
+            {
+                int temp = arr[i][j - 1];
+                arr[i][j - 1] = arr[i][j];
+                arr[i][j] = temp;
+            }
+        }
+        StepRight(arr, k, n, x - 1);
+    }
+
+}
+void StepDown(int** arr, int k, int n, int x)
+{
+    if (x != 0)
+    {
+        for (int i = k - 1; i > 0; i--)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                int temp = arr[i - 1][j];
+                arr[i - 1][j] = arr[i][j];
+                arr[i][j] = temp;
+            }
+        }
+        StepDown(arr, k, n, x - 1);
+    }
+}
+void DisplayMatrix(int** arr, int k, int n)
+{
+    for (int i = 0; i < k; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            cout << arr[i][j] << " ";
+        }
+        cout << "\n";
+    }
+}
+int main()
+{
+
+    int k, n;
+    cin >> k >> n;
+    int** search;
+    int** mtrx = new int* [k];
+    srand(time(NULL));
+    for (int i = 0; i < k; i++)
+    {
+        mtrx[i] = new int[n];
+        for (int j = 0; j < n; j++)
+        {
+            mtrx[i][j] = rand() % 9;
+            cout << mtrx[i][j] << " ";
+        }
+        cout << "\n";
+    }
+
+    cout << endl;
+    int rowIndex = SearchRowIndex(mtrx, k, n, k - 1);
+    char ch;
+    do {
+        cout << " " << endl;
+        cout << "1. Shift down " << endl;
+        cout << "2. Shift right" << endl;
+        cout << "3. Find the row with the largest number of zeros" << endl;
+
+
+        cin >> ch;
+        switch (ch)
+        {
+        case '1':
+            cout << "Input number of shifts down: " << endl;
+            int x;
+            cin >> x;
+            StepDown(mtrx, k, n, GetRealX(x, k));
+            cout << endl;
+            DisplayMatrix(mtrx, k, n);
+            break;
+        case '2':
+            cout << "Input number of shifts right: " << endl;
+            cin >> x;
+            StepRight(mtrx, k, n, GetRealX(x, k));
+            DisplayMatrix(mtrx, k, n);
+            break;
+        case '3':
+            if (rowIndex >= 0)
+            {
+                cout << " Row with more zeros" << rowIndex << endl;
+
+                for (int i = 0; i < n; i++)
+                {
+                    cout << mtrx[rowIndex][i] << " ";
+                }
+            }
+            else
+            {
+                cout << "Not found" << endl;
+            }
+            break;
+        default:
+            break;
+        }
+    } while (ch != 0);
+    for (int i = 0; i < k; i++)
+        delete[] mtrx[i];
+    delete[] mtrx;
+    return 0;
+}
+
